@@ -4,6 +4,9 @@ export type Theme = "dark" | "light";
 export interface State {
   mode: RenderMode;
   theme: Theme;
+  showGrid: boolean;
+  showMap: boolean;
+  showTorus: boolean;
 }
 
 type Listener = (state: State) => void;
@@ -17,6 +20,9 @@ export class AppState {
     this.state = {
       mode: "glass",
       theme: savedTheme ?? "dark",
+      showGrid: true,
+      showMap: true,
+      showTorus: true,
     };
   }
 
@@ -47,6 +53,21 @@ export class AppState {
 
   toggleTheme(): void {
     this.setTheme(this.state.theme === "dark" ? "light" : "dark");
+  }
+
+  toggleGrid(): void {
+    this.state = { ...this.state, showGrid: !this.state.showGrid };
+    this.notify();
+  }
+
+  toggleMap(): void {
+    this.state = { ...this.state, showMap: !this.state.showMap };
+    this.notify();
+  }
+
+  toggleTorus(): void {
+    this.state = { ...this.state, showTorus: !this.state.showTorus };
+    this.notify();
   }
 
   private notify(): void {

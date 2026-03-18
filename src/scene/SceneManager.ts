@@ -18,19 +18,15 @@ export class SceneManager {
   private raycaster = new THREE.Raycaster();
   private discPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
-  // Callbacks for external listeners
   onCountryClick: ((country: CountryMesh) => void) | null = null;
 
   constructor(canvas: HTMLCanvasElement, appState: AppState) {
-    // Scene
     this.scene = new THREE.Scene();
 
-    // Country group
     this.countryGroup = new THREE.Group();
     this.scene.add(this.countryGroup);
     this.highlighter = new HighlightManager(this.countryGroup);
 
-    // Camera
     this.camera = new THREE.PerspectiveCamera(
       CAMERA_FOV,
       window.innerWidth / window.innerHeight,
@@ -40,7 +36,6 @@ export class SceneManager {
     this.camera.position.set(2.5, 2, 3.5);
     this.camera.lookAt(0, 0, 0);
 
-    // Renderer — preserveDrawingBuffer for PNG export
     this.renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
@@ -50,7 +45,6 @@ export class SceneManager {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    // Controls
     this.controls = new OrbitControls(this.camera, canvas);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.08;
@@ -58,19 +52,15 @@ export class SceneManager {
     this.controls.maxDistance = 15;
     this.controls.target.set(0, 0, 0);
 
-    // Initial theme
     this.applyTheme(appState.get().theme);
 
-    // Resize
     window.addEventListener("resize", this.handleResize);
-
-    // Click to select country
     canvas.addEventListener("pointerup", this.handleClick);
 
-    // State listener
     appState.subscribe((state: State) => {
       this.applyMode(state.mode);
       this.applyTheme(state.theme);
+      this.applyVisibility(state);
     });
   }
 
@@ -82,6 +72,16 @@ export class SceneManager {
   addDisc(lines: THREE.LineSegments): void {
     this.discLines = lines;
     this.scene.add(lines);
+  }
+
+  private applyVisibility(state: State): void {
+    if (this.torusLines) {
+      this.torusLines.visible = state.showTorus;
+    }
+    if (this.discLines) {
+      this.discLines.visible = state.showGrid;
+    }
+    this.countryGroup.visible = state.showMap;
   }
 
   private applyMode(mode: RenderMode): void {
@@ -120,7 +120,6 @@ export class SceneManager {
   }
 
   private handleClick = (e: PointerEvent): void => {
-    // Ignore if the pointer moved (was a drag, not a click)
     const canvas = this.renderer.domElement;
     const rect = canvas.getBoundingClientRect();
     const mouse = new THREE.Vector2(
@@ -130,7 +129,6 @@ export class SceneManager {
 
     this.raycaster.setFromCamera(mouse, this.camera);
 
-    // Intersect with the y=0 disc plane
     const intersection = new THREE.Vector3();
     const hit = this.raycaster.ray.intersectPlane(this.discPlane, intersection);
     if (!hit) return;

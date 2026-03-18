@@ -5,6 +5,9 @@ import type { SceneManager } from "@/scene/SceneManager";
 export class ControlPanel {
   private btnMode: HTMLButtonElement;
   private btnTheme: HTMLButtonElement;
+  private btnTorus: HTMLButtonElement;
+  private btnGrid: HTMLButtonElement;
+  private btnMap: HTMLButtonElement;
   private btnClear: HTMLButtonElement;
   private btnExport: HTMLButtonElement;
 
@@ -14,17 +17,26 @@ export class ControlPanel {
   ) {
     this.btnMode = document.getElementById("btn-mode") as HTMLButtonElement;
     this.btnTheme = document.getElementById("btn-theme") as HTMLButtonElement;
+    this.btnTorus = document.getElementById("btn-torus") as HTMLButtonElement;
+    this.btnGrid = document.getElementById("btn-grid") as HTMLButtonElement;
+    this.btnMap = document.getElementById("btn-map") as HTMLButtonElement;
     this.btnClear = document.getElementById("btn-clear") as HTMLButtonElement;
     this.btnExport = document.getElementById("btn-export") as HTMLButtonElement;
 
     this.btnMode.addEventListener("click", () => appState.toggleMode());
     this.btnTheme.addEventListener("click", () => appState.toggleTheme());
+    this.btnTorus.addEventListener("click", () => appState.toggleTorus());
+    this.btnGrid.addEventListener("click", () => appState.toggleGrid());
+    this.btnMap.addEventListener("click", () => appState.toggleMap());
     this.btnClear.addEventListener("click", () => scene.highlighter.clearAll());
     this.btnExport.addEventListener("click", () => this.exportPNG());
 
     appState.subscribe((state) => {
       this.btnMode.textContent = state.mode === "glass" ? "SOLID" : "GLASS";
       this.btnTheme.textContent = state.theme === "dark" ? "LIGHT" : "DARK";
+      this.btnTorus.classList.toggle("active", state.showTorus);
+      this.btnGrid.classList.toggle("active", state.showGrid);
+      this.btnMap.classList.toggle("active", state.showMap);
     });
 
     // Set initial labels
