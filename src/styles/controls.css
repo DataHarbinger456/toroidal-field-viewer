@@ -247,6 +247,185 @@ canvas:active {
   color: var(--fg);
 }
 
+/* ── Flight panel toggle (top-left, below colors) ── */
+#flight-toggle {
+  position: fixed;
+  top: 52px;
+  left: 20px;
+  z-index: 10;
+  appearance: none;
+  border: 1px solid var(--ui-border);
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background 0.15s, color 0.15s;
+}
+
+#flight-toggle:hover {
+  color: var(--fg);
+}
+
+#flight-toggle.active {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+
+/* ── Flight panel ── */
+#flight-panel {
+  position: fixed;
+  top: 96px;
+  left: 20px;
+  z-index: 15;
+  width: 300px;
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.fp-header {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--ui-text);
+  padding: 10px 12px 6px;
+}
+
+.fp-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px 10px;
+}
+
+.fp-field {
+  position: relative;
+  flex: 1;
+}
+
+.fp-field input {
+  width: 100%;
+  appearance: none;
+  border: 1px solid var(--ui-border);
+  background: transparent;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 6px 8px;
+  outline: none;
+}
+
+.fp-field input::placeholder {
+  color: var(--ui-text);
+}
+
+.fp-field input:focus {
+  border-color: var(--highlight);
+}
+
+.fp-arrow {
+  color: var(--ui-text);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.fp-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-border);
+  border-top: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 25;
+}
+
+.fp-item {
+  padding: 6px 8px;
+  font-size: 10px;
+  color: var(--ui-text);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.fp-item:hover {
+  background: var(--ui-hover);
+  color: var(--fg);
+}
+
+.fp-item-name {
+  opacity: 0.5;
+  font-size: 9px;
+}
+
+#fp-add {
+  appearance: none;
+  border: 1px solid var(--ui-border);
+  background: transparent;
+  color: var(--highlight);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 300;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+#fp-add:hover {
+  background: var(--ui-hover);
+}
+
+/* Route list */
+.fp-route {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-top: 1px solid var(--ui-border);
+  font-size: 11px;
+}
+
+.fp-route-path {
+  color: var(--highlight);
+  font-weight: 500;
+  flex: 1;
+}
+
+.fp-route-dist {
+  color: var(--ui-text);
+  font-size: 10px;
+  margin-right: 8px;
+}
+
+.fp-route-remove {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--ui-text);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.1s;
+}
+
+.fp-route-remove:hover {
+  color: var(--fg);
+}
+
 /* ── Info tooltip ── */
 #info-tooltip {
   position: fixed;

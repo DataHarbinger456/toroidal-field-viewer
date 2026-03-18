@@ -3,8 +3,10 @@ import { SceneManager } from "@/scene/SceneManager";
 import { ControlPanel } from "@/ui/ControlPanel";
 import { SearchBar } from "@/ui/SearchBar";
 import { InfoTooltip } from "@/ui/InfoTooltip";
+import { FlightPanel } from "@/ui/FlightPanel";
 import { createTorusWireframe } from "@/geometry/HornTorus";
 import { createDiscGrid } from "@/geometry/FlatDisc";
+import { FlightPathManager } from "@/geometry/FlightPath";
 import { loadCountryData } from "@/geometry/loadContinents";
 import { createCountryMeshes } from "@/geometry/CountryMeshes";
 
@@ -27,6 +29,10 @@ async function init(): Promise<void> {
   const disc = createDiscGrid();
   scene.addDisc(disc);
 
+  // Flight paths
+  const flightManager = new FlightPathManager(scene.scene);
+  new FlightPanel(flightManager);
+
   // UI
   const tooltip = new InfoTooltip();
   const searchBar = new SearchBar(scene.highlighter);
@@ -34,7 +40,6 @@ async function init(): Promise<void> {
 
   // Country click handler — show tooltip
   scene.onCountryClick = (country) => {
-    // Position tooltip near center of screen as fallback
     const vec = country.centroid.clone().project(scene.camera);
     const hw = window.innerWidth / 2;
     const hh = window.innerHeight / 2;
@@ -48,11 +53,9 @@ async function init(): Promise<void> {
     .then((countries) => {
       const meshes = createCountryMeshes(countries);
       scene.highlighter.register(meshes);
-      // Apply current theme/mode to new meshes
       const state = appState.get();
       scene.highlighter.setTheme(state.theme);
       scene.highlighter.setMode(state.mode === "glass");
-      // Feed country names to search
       searchBar.setCountries(scene.highlighter.getCountryNames());
     })
     .catch((err) => {
@@ -61,6 +64,7 @@ async function init(): Promise<void> {
 
   // Render loop
   scene.renderer.setAnimationLoop(() => {
+    flightManager.update();
     scene.render();
   });
 }
