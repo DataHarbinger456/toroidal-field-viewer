@@ -150,6 +150,32 @@ export class SceneManager {
     this.renderer.setSize(w, h);
   };
 
+  /** Reset camera to the default position with smooth animation */
+  resetCamera(): void {
+    // Animate back to default position
+    const target = new THREE.Vector3(2.5, 2, 3.5);
+    const start = this.camera.position.clone();
+    const startTarget = this.controls.target.clone();
+    const endTarget = new THREE.Vector3(0, 0, 0);
+    const duration = 600; // ms
+    const startTime = performance.now();
+
+    const animate = () => {
+      const elapsed = performance.now() - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const ease = 1 - Math.pow(1 - t, 3);
+
+      this.camera.position.lerpVectors(start, target, ease);
+      this.controls.target.lerpVectors(startTarget, endTarget, ease);
+
+      if (t < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+    animate();
+  }
+
   render(): void {
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
