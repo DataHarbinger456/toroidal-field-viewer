@@ -3,20 +3,19 @@ import type { FlightPathManager } from "@/geometry/FlightPath";
 
 /**
  * Flight route builder — toggled via a small plane icon button.
- * Two inputs: FROM and TO with airport autocomplete.
- * Shows active routes with distance and a remove button.
+ * Two inputs with airport autocomplete. Must select from dropdown.
  */
 export class FlightPanel {
   private panel: HTMLDivElement;
   private routeList: HTMLDivElement;
   private fromInput: HTMLInputElement;
   private toInput: HTMLInputElement;
+  private addBtn: HTMLButtonElement;
   private selectedFrom: Airport | null = null;
   private selectedTo: Airport | null = null;
-  private activeDropdown: HTMLDivElement | null = null;
 
   constructor(private flightManager: FlightPathManager) {
-    // Toggle button (in top-left, below color pickers)
+    // Toggle button
     const toggleBtn = document.createElement("button");
     toggleBtn.id = "flight-toggle";
     toggleBtn.title = "Flight paths";
@@ -29,17 +28,18 @@ export class FlightPanel {
     this.panel.style.display = "none";
     this.panel.innerHTML = `
       <div class="fp-header">ROUTES</div>
+      <div class="fp-hint">Type city or airport code, then pick from the list</div>
       <div class="fp-inputs">
         <div class="fp-field">
-          <input type="text" id="fp-from" placeholder="From..." autocomplete="off" spellcheck="false" />
+          <input type="text" id="fp-from" placeholder="From (e.g. Tampa)" autocomplete="off" spellcheck="false" />
           <div class="fp-dropdown" id="fp-from-dropdown"></div>
         </div>
         <div class="fp-arrow">→</div>
         <div class="fp-field">
-          <input type="text" id="fp-to" placeholder="To..." autocomplete="off" spellcheck="false" />
+          <input type="text" id="fp-to" placeholder="To (e.g. Beijing)" autocomplete="off" spellcheck="false" />
           <div class="fp-dropdown" id="fp-to-dropdown"></div>
         </div>
-        <button id="fp-add" title="Add route">+</button>
+        <button id="fp-add" title="Add route" disabled>+</button>
       </div>
       <div id="fp-route-list"></div>
     `;
@@ -47,34 +47,48 @@ export class FlightPanel {
 
     this.fromInput = this.panel.querySelector("#fp-from") as HTMLInputElement;
     this.toInput = this.panel.querySelector("#fp-to") as HTMLInputElement;
+    this.addBtn = this.panel.querySelector("#fp-add") as HTMLButtonElement;
     this.routeList = this.panel.querySelector("#fp-route-list") as HTMLDivElement;
 
     const fromDropdown = this.panel.querySelector("#fp-from-dropdown") as HTMLDivElement;
     const toDropdown = this.panel.querySelector("#fp-to-dropdown") as HTMLDivElement;
-    const addBtn = this.panel.querySelector("#fp-add") as HTMLButtonElement;
 
     // Toggle panel
     toggleBtn.addEventListener("click", () => {
       const visible = this.panel.style.display !== "none";
       this.panel.style.display = visible ? "none" : "block";
       toggleBtn.classList.toggle("active", !visible);
+      if (!visible) this.fromInput.focus();
     });
 
-    // Input handlers
-    this.fromInput.addEventListener("input", () =>
+    // From input
+    this.fromInput.addEventListener("input", () => {
+      this.selectedFrom = null;
+      this.fromInput.classList.remove("fp-selected");
+      this.updateAddButton();
       this.showDropdown(this.fromInput, fromDropdown, (a) => {
         this.selectedFrom = a;
         this.fromInput.value = `${a.code} — ${a.city}`;
+        this.fromInput.classList.add("fp-selected");
         this.hideDropdown(fromDropdown);
-      }),
-    );
-    this.toInput.addEventListener("input", () =>
+        this.updateAddButton();
+        this.toInput.focus();
+      });
+    });
+
+    // To input
+    this.toInput.addEventListener("input", () => {
+      this.selectedTo = null;
+      this.toInput.classList.remove("fp-selected");
+      this.updateAddButton();
       this.showDropdown(this.toInput, toDropdown, (a) => {
         this.selectedTo = a;
         this.toInput.value = `${a.code} — ${a.city}`;
+        this.toInput.classList.add("fp-selected");
         this.hideDropdown(toDropdown);
-      }),
-    );
+        this.updateAddButton();
+      });
+    });
 
     // Close dropdowns on outside click
     document.addEventListener("pointerdown", (e) => {
@@ -85,12 +99,19 @@ export class FlightPanel {
     });
 
     // Add route
-    addBtn.addEventListener("click", () => this.addRoute());
-
-    // Enter key
+    this.addBtn.addEventListener("click", () => this.addRoute());
     this.toInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") this.addRoute();
     });
+    this.fromInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && this.selectedFrom) this.toInput.focus();
+    });
+  }
+
+  private updateAddButton(): void {
+    const ready = this.selectedFrom !== null && this.selectedTo !== null;
+    this.addBtn.disabled = !ready;
+    this.addBtn.classList.toggle("fp-ready", ready);
   }
 
   private showDropdown(
@@ -107,12 +128,15 @@ export class FlightPanel {
     dropdown.innerHTML = results
       .map(
         (a) =>
-          `<div class="fp-item" data-code="${a.code}">${a.code} — ${a.city} <span class="fp-item-name">${a.name}</span></div>`,
+          `<div class="fp-item" data-code="${a.code}">
+            <span class="fp-item-code">${a.code}</span>
+            <span class="fp-item-city">${a.city}</span>
+            <span class="fp-item-name">${a.name}</span>
+          </div>`,
       )
       .join("");
 
     dropdown.style.display = "block";
-    this.activeDropdown = dropdown;
 
     for (const item of dropdown.querySelectorAll(".fp-item")) {
       item.addEventListener("pointerdown", (e) => {
@@ -127,9 +151,6 @@ export class FlightPanel {
   private hideDropdown(dropdown: HTMLDivElement): void {
     dropdown.style.display = "none";
     dropdown.innerHTML = "";
-    if (this.activeDropdown === dropdown) {
-      this.activeDropdown = null;
-    }
   }
 
   private addRoute(): void {
@@ -139,13 +160,14 @@ export class FlightPanel {
     this.flightManager.addRoute(this.selectedFrom, this.selectedTo);
     this.renderRouteList();
 
-    // Reset inputs
+    // Reset
     this.fromInput.value = "";
     this.toInput.value = "";
+    this.fromInput.classList.remove("fp-selected");
+    this.toInput.classList.remove("fp-selected");
     this.selectedFrom = null;
     this.selectedTo = null;
-
-    // Focus back to from input for next route
+    this.updateAddButton();
     this.fromInput.focus();
   }
 
@@ -159,8 +181,9 @@ export class FlightPanel {
     this.routeList.innerHTML = routes
       .map(
         (r, i) =>
-          `<div class="fp-route" data-index="${i}">
+          `<div class="fp-route">
             <span class="fp-route-path">${r.from.code} → ${r.to.code}</span>
+            <span class="fp-route-cities">${r.from.city} → ${r.to.city}</span>
             <span class="fp-route-dist">${r.distanceKm.toLocaleString()} km</span>
             <button class="fp-route-remove" data-index="${i}" title="Remove">×</button>
           </div>`,

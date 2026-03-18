@@ -296,7 +296,14 @@ canvas:active {
   font-weight: 600;
   letter-spacing: 0.12em;
   color: var(--ui-text);
-  padding: 10px 12px 6px;
+  padding: 10px 12px 2px;
+}
+
+.fp-hint {
+  font-size: 9px;
+  color: var(--ui-text);
+  opacity: 0.6;
+  padding: 0 12px 8px;
 }
 
 .fp-inputs {
@@ -331,6 +338,11 @@ canvas:active {
   border-color: var(--highlight);
 }
 
+.fp-field input.fp-selected {
+  border-color: var(--highlight);
+  color: var(--highlight);
+}
+
 .fp-arrow {
   color: var(--ui-text);
   font-size: 12px;
@@ -359,6 +371,9 @@ canvas:active {
   color: var(--ui-text);
   cursor: pointer;
   transition: background 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .fp-item:hover {
@@ -366,9 +381,21 @@ canvas:active {
   color: var(--fg);
 }
 
+.fp-item-code {
+  font-weight: 600;
+  color: var(--highlight);
+  width: 30px;
+  flex-shrink: 0;
+}
+
+.fp-item-city {
+  flex: 1;
+}
+
 .fp-item-name {
-  opacity: 0.5;
+  opacity: 0.4;
   font-size: 9px;
+  text-align: right;
 }
 
 #fp-add {
@@ -386,8 +413,18 @@ canvas:active {
   transition: background 0.15s;
 }
 
-#fp-add:hover {
+#fp-add:hover:not(:disabled) {
   background: var(--ui-hover);
+}
+
+#fp-add:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+#fp-add.fp-ready {
+  border-color: var(--highlight);
+  opacity: 1;
 }
 
 /* Route list */
@@ -402,7 +439,15 @@ canvas:active {
 .fp-route-path {
   color: var(--highlight);
   font-weight: 500;
+  min-width: 80px;
+}
+
+.fp-route-cities {
+  color: var(--ui-text);
+  font-size: 9px;
   flex: 1;
+  opacity: 0.7;
+  margin: 0 6px;
 }
 
 .fp-route-dist {
