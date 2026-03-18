@@ -5,6 +5,7 @@ import type { SceneManager } from "@/scene/SceneManager";
 export class ControlPanel {
   private btnMode: HTMLButtonElement;
   private btnTheme: HTMLButtonElement;
+  private btnClear: HTMLButtonElement;
   private btnExport: HTMLButtonElement;
 
   constructor(
@@ -13,10 +14,12 @@ export class ControlPanel {
   ) {
     this.btnMode = document.getElementById("btn-mode") as HTMLButtonElement;
     this.btnTheme = document.getElementById("btn-theme") as HTMLButtonElement;
+    this.btnClear = document.getElementById("btn-clear") as HTMLButtonElement;
     this.btnExport = document.getElementById("btn-export") as HTMLButtonElement;
 
     this.btnMode.addEventListener("click", () => appState.toggleMode());
     this.btnTheme.addEventListener("click", () => appState.toggleTheme());
+    this.btnClear.addEventListener("click", () => scene.highlighter.clearAll());
     this.btnExport.addEventListener("click", () => this.exportPNG());
 
     appState.subscribe((state) => {
@@ -33,29 +36,24 @@ export class ControlPanel {
   private exportPNG(): void {
     const renderer = this.scene.renderer;
     const camera = this.scene.camera;
-    const scene = this.scene.scene;
+    const scn = this.scene.scene;
 
-    // Save current size
     const w = renderer.domElement.width;
     const h = renderer.domElement.height;
 
-    // Render at higher resolution
     const exportW = w * EXPORT_SCALE;
     const exportH = h * EXPORT_SCALE;
     renderer.setSize(exportW, exportH, false);
     camera.aspect = exportW / exportH;
     camera.updateProjectionMatrix();
-    renderer.render(scene, camera);
+    renderer.render(scn, camera);
 
-    // Grab the image
     const dataUrl = renderer.domElement.toDataURL("image/png");
 
-    // Restore original size
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
 
-    // Download
     const link = document.createElement("a");
     link.download = `toroidal-field-${Date.now()}.png`;
     link.href = dataUrl;
