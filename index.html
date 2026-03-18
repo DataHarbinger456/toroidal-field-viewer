@@ -10,9 +10,12 @@
 </head>
 <body>
   <canvas id="viewer"></canvas>
+
+  <!-- Bottom control bar -->
   <div id="controls">
     <button id="btn-mode" title="Toggle glass/solid mode">SOLID</button>
     <button id="btn-theme" title="Toggle light/dark theme">LIGHT</button>
+    <button id="btn-spin" title="Auto-rotate">SPIN</button>
     <button id="btn-torus" title="Toggle torus wireframe" class="active">TORUS</button>
     <button id="btn-grid" title="Toggle lat/lon grid" class="active">GRID</button>
     <button id="btn-map" title="Toggle country borders" class="active">MAP</button>
@@ -20,6 +23,19 @@
     <button id="btn-reset" title="Reset camera to default view">RESET</button>
     <button id="btn-export" title="Export PNG">EXPORT</button>
   </div>
+
+  <!-- Color pickers (top-left, discreet) -->
+  <div id="color-panel">
+    <label class="color-swatch" title="Torus color">
+      <span class="color-label">T</span>
+      <input type="color" id="color-torus" value="#ffffff" />
+    </label>
+    <label class="color-swatch" title="Grid color">
+      <span class="color-label">G</span>
+      <input type="color" id="color-grid" value="#ffffff" />
+    </label>
+  </div>
+
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

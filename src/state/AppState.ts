@@ -7,6 +7,9 @@ export interface State {
   showGrid: boolean;
   showMap: boolean;
   showTorus: boolean;
+  spinning: boolean;
+  torusColor: string;
+  gridColor: string;
 }
 
 type Listener = (state: State) => void;
@@ -23,6 +26,9 @@ export class AppState {
       showGrid: true,
       showMap: true,
       showTorus: true,
+      spinning: false,
+      torusColor: "#ffffff",
+      gridColor: "#ffffff",
     };
   }
 
@@ -44,6 +50,10 @@ export class AppState {
     this.state = { ...this.state, theme };
     localStorage.setItem("tfv-theme", theme);
     document.documentElement.setAttribute("data-theme", theme);
+    // Reset colors to match new theme unless user has customized them
+    const defaultColor = theme === "dark" ? "#ffffff" : "#000000";
+    this.state.torusColor = defaultColor;
+    this.state.gridColor = defaultColor;
     this.notify();
   }
 
@@ -67,6 +77,21 @@ export class AppState {
 
   toggleTorus(): void {
     this.state = { ...this.state, showTorus: !this.state.showTorus };
+    this.notify();
+  }
+
+  toggleSpin(): void {
+    this.state = { ...this.state, spinning: !this.state.spinning };
+    this.notify();
+  }
+
+  setTorusColor(color: string): void {
+    this.state = { ...this.state, torusColor: color };
+    this.notify();
+  }
+
+  setGridColor(color: string): void {
+    this.state = { ...this.state, gridColor: color };
     this.notify();
   }
 

@@ -52,6 +52,10 @@ export class SceneManager {
     this.controls.maxDistance = 15;
     this.controls.target.set(0, 0, 0);
 
+    // Auto-rotate config (off by default)
+    this.controls.autoRotate = false;
+    this.controls.autoRotateSpeed = 1.5;
+
     this.applyTheme(appState.get().theme);
 
     window.addEventListener("resize", this.handleResize);
@@ -61,6 +65,8 @@ export class SceneManager {
       this.applyMode(state.mode);
       this.applyTheme(state.theme);
       this.applyVisibility(state);
+      this.applySpin(state.spinning);
+      this.applyColors(state);
     });
   }
 
@@ -84,6 +90,19 @@ export class SceneManager {
     this.countryGroup.visible = state.showMap;
   }
 
+  private applySpin(spinning: boolean): void {
+    this.controls.autoRotate = spinning;
+  }
+
+  private applyColors(state: State): void {
+    if (this.torusLines) {
+      (this.torusLines.material as THREE.LineBasicMaterial).color.set(state.torusColor);
+    }
+    if (this.discLines) {
+      (this.discLines.material as THREE.LineBasicMaterial).color.set(state.gridColor);
+    }
+  }
+
   private applyMode(mode: RenderMode): void {
     const glass = mode === "glass";
 
@@ -105,17 +124,8 @@ export class SceneManager {
   private applyTheme(theme: Theme): void {
     const dark = theme === "dark";
     const bgColor = dark ? 0x000000 : 0xf5f5f0;
-    const lineColor = dark ? 0xffffff : 0x000000;
 
     this.scene.background = new THREE.Color(bgColor);
-
-    if (this.torusLines) {
-      (this.torusLines.material as THREE.LineBasicMaterial).color.setHex(lineColor);
-    }
-    if (this.discLines) {
-      (this.discLines.material as THREE.LineBasicMaterial).color.setHex(lineColor);
-    }
-
     this.highlighter.setTheme(theme);
   }
 
@@ -150,20 +160,17 @@ export class SceneManager {
     this.renderer.setSize(w, h);
   };
 
-  /** Reset camera to the default position with smooth animation */
   resetCamera(): void {
-    // Animate back to default position
     const target = new THREE.Vector3(2.5, 2, 3.5);
     const start = this.camera.position.clone();
     const startTarget = this.controls.target.clone();
     const endTarget = new THREE.Vector3(0, 0, 0);
-    const duration = 600; // ms
+    const duration = 600;
     const startTime = performance.now();
 
     const animate = () => {
       const elapsed = performance.now() - startTime;
       const t = Math.min(elapsed / duration, 1);
-      // Ease out cubic
       const ease = 1 - Math.pow(1 - t, 3);
 
       this.camera.position.lerpVectors(start, target, ease);
