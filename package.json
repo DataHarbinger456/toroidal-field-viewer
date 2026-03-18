@@ -1,0 +1,25 @@
+{
+  "name": "toroidal-field-viewer",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write ."
+  },
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.183.2",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.7",
+    "@types/three": "^0.183.1",
+    "@types/topojson-client": "^3.1.5",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.0"
+  }
+}
