@@ -130,8 +130,7 @@ export class FlightPanel {
         (a) =>
           `<div class="fp-item" data-code="${a.code}">
             <span class="fp-item-code">${a.code}</span>
-            <span class="fp-item-city">${a.city}</span>
-            <span class="fp-item-name">${a.name}</span>
+            <span class="fp-item-city">${a.city}, ${a.country}</span>
           </div>`,
       )
       .join("");
